@@ -8,5 +8,6 @@ namespace GSTcpInLib
 {
     public class GSTcpIn
     {
+        Sleep(1000);
     }
 }
