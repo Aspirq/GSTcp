@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FormulaLib">
+      <HintPath>..\FormulaLib\bin\Debug\FormulaLib.dll</HintPath>
+    </Reference>
+    <Reference Include="GSTcpInLib">
+      <HintPath>..\GSTcpInLib\bin\Debug\GSTcpInLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
