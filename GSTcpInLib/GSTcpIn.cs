@@ -14,7 +14,7 @@ namespace GSTcpInLib
 {
     public class GSTcpIn
     {
-        Thread thread;
+        static Thread thread;
         IPAddress addr;
         NetworkStream GSTimeStream;
         byte[] b = new byte[4];//IP address
@@ -56,7 +56,7 @@ namespace GSTcpInLib
             }
         }
 
-        public void GSStart (string GS_IPAddress)
+        public void  GSStart (string GS_IPAddress)
         {
             // Запускаю подключение
             if (GSTimeNewConnect(GS_IPAddress)) 
@@ -66,6 +66,11 @@ namespace GSTcpInLib
                 thread.IsBackground = false;
                 thread.Start();                
             }
+
+        }
+
+        public void GSStop()
+        {
 
         }
 
@@ -109,11 +114,10 @@ namespace GSTcpInLib
 
         private void GSCallTimeGID()
         {
-            byte [] q= new byte[1];
+            
             byte[] paramsID = new byte[2];
             byte[] GSTimeBytes = new byte[3];
-            q[0] = 83;
-            stream.Write(q, 0, q.Length);
+            GSSendReq(83);
             while (!stream.DataAvailable)
             {
                Thread.Sleep(10);
@@ -129,12 +133,33 @@ namespace GSTcpInLib
                     int K = (packLen - 3) / 2;
                     for (int i = 3; i < (K + 2); i++)
                     {
+                        //Заносим GID в лист
                         stream.Read(paramsID, 0, 2);
                         Item item = new Item();
                         item.ID = paramsID[0] + paramsID[1] * 256;
                         TimeDataRecord.Add(item);
                     }
                 }
+            }
+        }
+
+        private void GSSendReq(byte ID)
+        {
+            byte[] q = new byte[1];
+            q[0] = ID;
+            stream.Write(q, 0, q.Length);
+        }
+
+        private void GSCallTimeDate()
+        {
+            //Читаем значения
+
+            byte[] paramsID = new byte[2];
+            byte[] GSTimeBytes = new byte[3];
+            GSSendReq(68); ;
+            while (!stream.DataAvailable)
+            {
+                Thread.Sleep(10);
             }
         }
 
