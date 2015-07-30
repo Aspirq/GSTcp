@@ -23,7 +23,7 @@ namespace GGCalc
         private void button1_Click(object sender, EventArgs e)
         {
             
-            GSTcpConn.GSStart("172.16.10.249");
+            GSTcpConn.GSStart("172.16.10.245");
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -40,9 +40,19 @@ namespace GGCalc
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Double Val = GSTcpConn.GetParam(101);
+            Double Val = GSTcpConn.GetParam(0);
             label1.Text = Val.ToString();
             
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            GSTcpConn.GSStop();
+        }
+
+        private void GSCalcMnFrm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            GSTcpConn.GSStop();
         }
     }
 }

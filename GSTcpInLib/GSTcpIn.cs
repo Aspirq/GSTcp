@@ -20,7 +20,8 @@ namespace GSTcpInLib
         //byte[] b = new byte[4];//IP address
         Int32 TimePort = 255;
         NetworkStream stream;
-        TcpClient GSTimeClient = new TcpClient();
+        TcpClient GSTimeClient;
+        Boolean StopTag = true;
         
 
         public class Item
@@ -44,14 +45,17 @@ namespace GSTcpInLib
             try
             {
                 //Подключение
+                GSTimeClient = new TcpClient();
                 GSTimeClient.SendTimeout = 3000;
                 GSTimeClient.ReceiveTimeout = 3000;
                 GSTimeClient.Connect(addr, TimePort);
+                StopTag = false;
                 return true; // возвращаем True, если получилось
             }
             catch (SocketException e)
             {
                 MessageBox.Show("Соединение не установлено. " + e.Message);
+                StopTag = true;
                 return false; // Вывожу ошибку и False, если не получилось подключиться.
             }
         }
@@ -71,28 +75,36 @@ namespace GSTcpInLib
 
         public void GSStop()
         {
-
+            StopTag = true;
         }
 
         public Boolean GSChecTimekConnect()
         {
-            IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
-            TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(GSTimeClient.Client.LocalEndPoint) && x.RemoteEndPoint.Equals(GSTimeClient.Client.RemoteEndPoint)).ToArray();
-
-            if (tcpConnections != null && tcpConnections.Length > 0)
+            
+            if (GSTimeClient.Connected)
             {
-                TcpState stateOfConnection = tcpConnections.First().State;
-                if (stateOfConnection == TcpState.Established)
+                IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+                TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(GSTimeClient.Client.LocalEndPoint) && x.RemoteEndPoint.Equals(GSTimeClient.Client.RemoteEndPoint)).ToArray();
+
+                if (tcpConnections != null && tcpConnections.Length > 0)
                 {
-                    // Connection is OK
-                    return true;
+                    TcpState stateOfConnection = tcpConnections.First().State;
+                    if (stateOfConnection == TcpState.Established)
+                    {
+                        // Connection is OK
+                        return true;
+                    }
+                    else
+                    {
+                        // No active tcp Connection to hostName:port
+                        return false;
+                    }
+
                 }
                 else
                 {
-                    // No active tcp Connection to hostName:port
                     return false;
                 }
-
             }
             else
             {
@@ -163,6 +175,7 @@ namespace GSTcpInLib
                     while (GSTimeStream.DataAvailable)
                     {
                         GSTimeStream.Read(paramsID, 0, 1);
+                        //Thread.Sleep(1000);
                     }
                     
                 }
@@ -174,7 +187,7 @@ namespace GSTcpInLib
             NetworkStream GSTimeStream = GSTimeClient.GetStream();
             if (ID == 68)
             {
-                byte[] q = new byte[9];
+                byte[] q = new byte[1];
                 q[0] = ID;
                 GSTimeStream.Write(q, 0, q.Length);
             }
@@ -184,6 +197,7 @@ namespace GSTcpInLib
                 q[0] = ID;
                 GSTimeStream.Write(q, 0, q.Length);
             }
+            Thread.Sleep(50);
             
             
             
@@ -200,7 +214,7 @@ namespace GSTcpInLib
             
 
 
-            Thread.Sleep(1500);
+            //Thread.Sleep(1500);
             while (!GSTimeStream.DataAvailable)
             {
                 Thread.Sleep(10);
@@ -209,7 +223,8 @@ namespace GSTcpInLib
             {
                 GSTimeStream.Read(GSTimeBytes, 0, 3);
                 int dataHeader = GSTimeBytes[2];
-                if ((dataHeader == 68) | (dataHeader == 77)) //M or D - пришел пакет с данными
+                Console.WriteLine(dataHeader);
+                if ((dataHeader == 68) ) //M or D - пришел пакет с данными
                 {
                     System.Int32 packLen = GSTimeBytes[0] + GSTimeBytes[1] * 256;
                     int K = (packLen - 3) / 8;
@@ -224,6 +239,10 @@ namespace GSTcpInLib
                 {
                     GSTimeStream.Read(Value, 0, 1);
                 }
+            }
+            if (StopTag)
+            {
+                GSTimeClient.Close();
             }
 
         }
