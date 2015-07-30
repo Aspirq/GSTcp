@@ -14,6 +14,7 @@ namespace GGCalc
     public partial class GSCalcMnFrm : Form
     {
         GSTcpIn GSTcpConn = new GSTcpIn();
+        public List<GSTcpIn.Item> TimeDataRecord;
         public GSCalcMnFrm()
         {
             InitializeComponent();
@@ -22,9 +23,7 @@ namespace GGCalc
         private void button1_Click(object sender, EventArgs e)
         {
             
-            GSTcpConn.GSStart("192.168.67.3");
-
-
+            GSTcpConn.GSStart("172.16.10.249");
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -37,6 +36,13 @@ namespace GGCalc
             {
                 MessageBox.Show("Нет коннекта");
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Double Val = GSTcpConn.GetParam(100);
+            label1.Text = Val.ToString();
+            
         }
     }
 }

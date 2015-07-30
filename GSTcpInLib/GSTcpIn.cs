@@ -16,8 +16,8 @@ namespace GSTcpInLib
     {
         static Thread thread;
         IPAddress addr;
-        NetworkStream GSTimeStream;
-        byte[] b = new byte[4];//IP address
+        
+        //byte[] b = new byte[4];//IP address
         Int32 TimePort = 255;
         NetworkStream stream;
         TcpClient GSTimeClient = new TcpClient();
@@ -25,8 +25,8 @@ namespace GSTcpInLib
 
         public class Item
         {
-            public int ID;
-            public Double Value;
+            public int ID { get; set; }
+            public Double Value { get; set; }
         }
         public List<Item> TimeDataRecord;
 
@@ -108,8 +108,23 @@ namespace GSTcpInLib
                 TimeDataRecord = new List<Item>();
                 stream = GSTimeClient.GetStream();
                 GSCallTimeGID();
+                GSCallTimeGID();
+                 //   GSCallTimeDate();
+                
+                
             }
 
+        }
+
+        public List<Item> GetAllGSParam()
+        {
+            return TimeDataRecord;
+        }
+
+        public Double GetParam(int ParamGid)
+        {
+
+            return TimeDataRecord.Find(x => x.ID == ParamGid).Value; 
         }
 
         private void GSCallTimeGID()
@@ -117,15 +132,15 @@ namespace GSTcpInLib
             
             byte[] paramsID = new byte[2];
             byte[] GSTimeBytes = new byte[3];
-            GSSendReq(83);
-            while (!stream.DataAvailable)
+            NetworkStream GSTimeStream = GSSendReq(83);
+            while (!GSTimeStream.DataAvailable)
             {
                Thread.Sleep(10);
             }
 
-            if (stream.DataAvailable)
+            if (GSTimeStream.DataAvailable)
             {
-                stream.Read(GSTimeBytes, 0, 3);
+                GSTimeStream.Read(GSTimeBytes, 0, 3);
                 int dataHeader = GSTimeBytes[2];
                 if (dataHeader == 83) //S
                 {
@@ -143,24 +158,55 @@ namespace GSTcpInLib
             }
         }
 
-        private void GSSendReq(byte ID)
+        private NetworkStream GSSendReq(byte ID)
         {
-            byte[] q = new byte[1];
+            NetworkStream GSTimeStream = GSTimeClient.GetStream();
+            byte[] q = new byte[3];
             q[0] = ID;
-            stream.Write(q, 0, q.Length);
+            GSTimeStream.Write(q, 0, q.Length);
+            return GSTimeStream;
         }
 
         private void GSCallTimeDate()
         {
             //Читаем значения
 
-            byte[] paramsID = new byte[2];
+            byte[] Value = new byte[8];
             byte[] GSTimeBytes = new byte[3];
-            GSSendReq(68); ;
+            byte[] q = new byte[9];
+            q[0] = 68;
+            stream.Write(q, 0, q.Length);
+            
+            Double t = DateTime.Now.ToOADate();
+            byte[] time = System.BitConverter.GetBytes(t);
+
+            /*for (int i = 1; i < 9; i++)
+            {
+                q[i] = time[i - 1];
+            }*/
+            //GSSendReq(68);
+            Thread.Sleep(1500);
             while (!stream.DataAvailable)
             {
                 Thread.Sleep(10);
             }
+            if (stream.DataAvailable)
+            {
+                stream.Read(GSTimeBytes, 0, 3);
+                int dataHeader = GSTimeBytes[2];
+                if ((dataHeader == 68) | (dataHeader == 77)) //M or D - пришел пакет с данными
+                {
+                    System.Int32 packLen = GSTimeBytes[0] + GSTimeBytes[1] * 256;
+                    int K = (packLen - 3) / 8;
+                    for (int i = 0; i < (K - 1); i++)
+                    {
+                        //Заносим GID в лист
+                        stream.Read(Value, 0, 8);                       
+                        TimeDataRecord[i].Value = System.BitConverter.ToDouble(Value, 0);
+                    }
+                }
+            }
+
         }
 
 
