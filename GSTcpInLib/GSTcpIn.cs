@@ -105,11 +105,16 @@ namespace GSTcpInLib
             //Пока подключенно
             if (GSChecTimekConnect())
             {
-                TimeDataRecord = new List<Item>();
+                
+                
                 stream = GSTimeClient.GetStream();
+
                 GSCallTimeGID();
-                GSCallTimeGID();
-                 //   GSCallTimeDate();
+               // GSCallTimeGID();
+                while (GSChecTimekConnect())
+                {
+                    GSCallTimeDate();
+                }
                 
                 
             }
@@ -133,11 +138,12 @@ namespace GSTcpInLib
             byte[] paramsID = new byte[2];
             byte[] GSTimeBytes = new byte[3];
             NetworkStream GSTimeStream = GSSendReq(83);
+            
             while (!GSTimeStream.DataAvailable)
             {
                Thread.Sleep(10);
             }
-
+            TimeDataRecord = new List<Item>();
             if (GSTimeStream.DataAvailable)
             {
                 GSTimeStream.Read(GSTimeBytes, 0, 3);
@@ -149,11 +155,16 @@ namespace GSTcpInLib
                     for (int i = 3; i < (K + 2); i++)
                     {
                         //Заносим GID в лист
-                        stream.Read(paramsID, 0, 2);
+                        GSTimeStream.Read(paramsID, 0, 2);
                         Item item = new Item();
                         item.ID = paramsID[0] + paramsID[1] * 256;
                         TimeDataRecord.Add(item);
                     }
+                    while (GSTimeStream.DataAvailable)
+                    {
+                        GSTimeStream.Read(paramsID, 0, 1);
+                    }
+                    
                 }
             }
         }
@@ -161,9 +172,21 @@ namespace GSTcpInLib
         private NetworkStream GSSendReq(byte ID)
         {
             NetworkStream GSTimeStream = GSTimeClient.GetStream();
-            byte[] q = new byte[3];
-            q[0] = ID;
-            GSTimeStream.Write(q, 0, q.Length);
+            if (ID == 68)
+            {
+                byte[] q = new byte[9];
+                q[0] = ID;
+                GSTimeStream.Write(q, 0, q.Length);
+            }
+            else
+            {
+                byte[] q = new byte[1];
+                q[0] = ID;
+                GSTimeStream.Write(q, 0, q.Length);
+            }
+            
+            
+            
             return GSTimeStream;
         }
 
@@ -173,26 +196,18 @@ namespace GSTcpInLib
 
             byte[] Value = new byte[8];
             byte[] GSTimeBytes = new byte[3];
-            byte[] q = new byte[9];
-            q[0] = 68;
-            stream.Write(q, 0, q.Length);
+            NetworkStream GSTimeStream = GSSendReq(68);           
             
-            Double t = DateTime.Now.ToOADate();
-            byte[] time = System.BitConverter.GetBytes(t);
 
-            /*for (int i = 1; i < 9; i++)
-            {
-                q[i] = time[i - 1];
-            }*/
-            //GSSendReq(68);
+
             Thread.Sleep(1500);
-            while (!stream.DataAvailable)
+            while (!GSTimeStream.DataAvailable)
             {
                 Thread.Sleep(10);
             }
-            if (stream.DataAvailable)
+            if (GSTimeStream.DataAvailable)
             {
-                stream.Read(GSTimeBytes, 0, 3);
+                GSTimeStream.Read(GSTimeBytes, 0, 3);
                 int dataHeader = GSTimeBytes[2];
                 if ((dataHeader == 68) | (dataHeader == 77)) //M or D - пришел пакет с данными
                 {
@@ -201,9 +216,13 @@ namespace GSTcpInLib
                     for (int i = 0; i < (K - 1); i++)
                     {
                         //Заносим GID в лист
-                        stream.Read(Value, 0, 8);                       
+                        GSTimeStream.Read(Value, 0, 8);                       
                         TimeDataRecord[i].Value = System.BitConverter.ToDouble(Value, 0);
                     }
+                }
+                while (GSTimeStream.DataAvailable)
+                {
+                    GSTimeStream.Read(Value, 0, 1);
                 }
             }
 

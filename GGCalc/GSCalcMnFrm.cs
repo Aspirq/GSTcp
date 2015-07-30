@@ -40,7 +40,7 @@ namespace GGCalc
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Double Val = GSTcpConn.GetParam(100);
+            Double Val = GSTcpConn.GetParam(101);
             label1.Text = Val.ToString();
             
         }
