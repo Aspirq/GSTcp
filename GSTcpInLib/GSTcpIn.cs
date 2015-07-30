@@ -15,14 +15,10 @@ namespace GSTcpInLib
     public class GSTcpIn
     {
         static Thread thread;
-        IPAddress addr;
-        
-        //byte[] b = new byte[4];//IP address
+        IPAddress addr;        
         Int32 TimePort = 255;
-        NetworkStream stream;
         TcpClient GSTimeClient;
-        Boolean StopTag = true;
-        
+        Boolean StopTag = true; 
 
         public class Item
         {
@@ -31,7 +27,6 @@ namespace GSTcpInLib
             public Double Value { get; set; }
         }
         public List<Item> TimeDataRecord;
-        private int Ind;
 
         private Boolean GSTimeNewConnect(string GS_IPAddress)
         {
@@ -42,6 +37,7 @@ namespace GSTcpInLib
 
         }
 
+        // Попытка установить соединение
         private Boolean GSTimeConnect()
         {
             try
@@ -56,12 +52,13 @@ namespace GSTcpInLib
             }
             catch (SocketException e)
             {
-                MessageBox.Show("Соединение не установлено. " + e.Message);
-                StopTag = true;
+                MessageBox.Show("Соединение не установлено. " + e.Message); // Вывод окна с ошибкой
+                StopTag = true; 
                 return false; // Вывожу ошибку и False, если не получилось подключиться.
             }
         }
-
+        
+        // Запуск опроса
         public void  GSStart (string GS_IPAddress)
         {
             // Запускаю подключение
@@ -75,19 +72,19 @@ namespace GSTcpInLib
 
         }
 
+        //Остановка опроса
         public void GSStop()
         {
             StopTag = true;
         }
 
+        // Проверка подключения
         public Boolean GSChecTimekConnect()
         {
-
             if ((GSTimeClient != null)&&(GSTimeClient.Connected))
             {
                 IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
                 TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(GSTimeClient.Client.LocalEndPoint) && x.RemoteEndPoint.Equals(GSTimeClient.Client.RemoteEndPoint)).ToArray();
-
                 if (tcpConnections != null && tcpConnections.Length > 0)
                 {
                     TcpState stateOfConnection = tcpConnections.First().State;
@@ -102,7 +99,6 @@ namespace GSTcpInLib
                         StopTag = true;
                         GSTimeClient.Close();
                         return false;
-
                     }
 
                 }
@@ -117,21 +113,19 @@ namespace GSTcpInLib
             }
         }
 
+        //Основной цикл
         private void GSTimeRead()
         {
             //Пока подключенно
             if (GSChecTimekConnect())
             {
-                stream = GSTimeClient.GetStream();
+                
                 GSCallTimeGID();
                 while (GSChecTimekConnect())
                 {
                     GSCallTimeDate();
-                }
-                
-                
+                } 
             }
-
         }
 
         public List<Item> GetAllGSParam()
@@ -139,29 +133,33 @@ namespace GSTcpInLib
             return TimeDataRecord;
         }
 
+        //Выдача данных
         public Double GetParam(int ParamGid)
         {
+            // Если существует лист и запрошенный параметр 
             if ((TimeDataRecord != null)&&(TimeDataRecord.Find(x => x.ID == ParamGid) != null))
             {
+                // Выдать параметр
                 return TimeDataRecord.Find(x => x.ID == ParamGid).Value;
             }
             else
             {
+                //Выдать минус много
                 return -2147483647;
             }
         }
-
+        // Обработка GIDов
         private void GSCallTimeGID()
-        {
-            
+        {            
             byte[] paramsID = new byte[2];
             byte[] GSTimeBytes = new byte[3];
-            NetworkStream GSTimeStream = GSSendReq(83);
-            
+            //Запрос потока с перечнем ГИДов
+            NetworkStream GSTimeStream = GSSendReq(83);            
             while (!GSTimeStream.DataAvailable)
             {
                Thread.Sleep(10);
             }
+            //Новый лист для хранения данных
             TimeDataRecord = new List<Item>();
             if (GSTimeStream.DataAvailable)
             {
@@ -181,10 +179,8 @@ namespace GSTcpInLib
                     }
                     while (GSTimeStream.DataAvailable)
                     {
-                        GSTimeStream.Read(paramsID, 0, 1);
-                        
-                    }
-                    
+                        GSTimeStream.Read(paramsID, 0, 1);                        
+                    }                    
                 }
             }
         }
@@ -196,41 +192,43 @@ namespace GSTcpInLib
             return bytes;
         }
 
+        //Запрос потока данных
         private NetworkStream GSSendReq(byte ID)
         {
             NetworkStream GSTimeStream = GSTimeClient.GetStream();
+            //Генерация запроса
             if (ID == 68)
             {
+                //Если данные
                 Double Time = DateTime.Now.ToOADate() - 0.00001;
                 Console.WriteLine(Time);
                 byte[] TimeBytes = BitConverter.GetBytes(Time);
-                byte[] q = new byte[39];
+                byte[] q = new byte[TimeBytes.Length+1];
                 q[0] = ID;
-                for (Ind = 0; Ind < TimeBytes.Length; Ind++)
+                for (int Ind = 0; Ind < TimeBytes.Length; Ind++)
                 {
                     q[Ind + 1] = TimeBytes[Ind];
                 }
-
                 GSTimeStream.Write(q, 0, q.Length);
             }
             else
             {
+                //Все остальное
                 byte[] q = new byte[1];
                 q[0] = ID;
                 GSTimeStream.Write(q, 0, q.Length);
             }
-            Thread.Sleep(50);
-            
-            
-            
+            // возвращаем поток
+            Thread.Sleep(50); 
             return GSTimeStream;
         }
 
+        //Обработка данных
         private void GSCallTimeDate()
-        {
-            //Читаем значения
+        {            
             byte[] Value = new byte[8];
             byte[] GSTimeBytes = new byte[3];
+            //Запрос данных
             NetworkStream GSTimeStream = GSSendReq(68); 
             while (!GSTimeStream.DataAvailable)
             {
@@ -238,6 +236,7 @@ namespace GSTcpInLib
             }
             if (GSTimeStream.DataAvailable)
             {
+                //Проверка типа полученных данных
                 GSTimeStream.Read(GSTimeBytes, 0, 3);
                 int dataHeader = GSTimeBytes[2];
                 Console.WriteLine(dataHeader);
@@ -247,24 +246,21 @@ namespace GSTcpInLib
                     int K = (packLen - 3) / 8;
                     for (int i = 0; i < (K - 1); i++)
                     {
-                        //Заносим GID в лист
+                        //Заносим данные в лист
                         GSTimeStream.Read(Value, 0, 8);                       
                         TimeDataRecord[i].Value = System.BitConverter.ToDouble(Value, 0);
                     }
                 }
                 while (GSTimeStream.DataAvailable)
-                {
+                {                    
                     GSTimeStream.Read(Value, 0, 1);
                 }
             }
             if (StopTag)
             {
+                //Остановить считавание
                 GSTimeClient.Close();
             }
-
         }
-
-
-
     }
 }
