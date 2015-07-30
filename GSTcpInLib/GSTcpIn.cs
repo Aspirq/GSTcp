@@ -26,10 +26,12 @@ namespace GSTcpInLib
 
         public class Item
         {
+            public bool Equals;
             public int ID { get; set; }
             public Double Value { get; set; }
         }
         public List<Item> TimeDataRecord;
+        private int Ind;
 
         private Boolean GSTimeNewConnect(string GS_IPAddress)
         {
@@ -80,8 +82,8 @@ namespace GSTcpInLib
 
         public Boolean GSChecTimekConnect()
         {
-            
-            if (GSTimeClient.Connected)
+
+            if ((GSTimeClient != null)&&(GSTimeClient.Connected))
             {
                 IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
                 TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(GSTimeClient.Client.LocalEndPoint) && x.RemoteEndPoint.Equals(GSTimeClient.Client.RemoteEndPoint)).ToArray();
@@ -97,7 +99,10 @@ namespace GSTcpInLib
                     else
                     {
                         // No active tcp Connection to hostName:port
+                        StopTag = true;
+                        GSTimeClient.Close();
                         return false;
+
                     }
 
                 }
@@ -117,12 +122,8 @@ namespace GSTcpInLib
             //Пока подключенно
             if (GSChecTimekConnect())
             {
-                
-                
                 stream = GSTimeClient.GetStream();
-
                 GSCallTimeGID();
-               // GSCallTimeGID();
                 while (GSChecTimekConnect())
                 {
                     GSCallTimeDate();
@@ -140,8 +141,14 @@ namespace GSTcpInLib
 
         public Double GetParam(int ParamGid)
         {
-
-            return TimeDataRecord.Find(x => x.ID == ParamGid).Value; 
+            if ((TimeDataRecord != null)&&(TimeDataRecord.Find(x => x.ID == ParamGid) != null))
+            {
+                return TimeDataRecord.Find(x => x.ID == ParamGid).Value;
+            }
+            else
+            {
+                return -2147483647;
+            }
         }
 
         private void GSCallTimeGID()
@@ -175,11 +182,18 @@ namespace GSTcpInLib
                     while (GSTimeStream.DataAvailable)
                     {
                         GSTimeStream.Read(paramsID, 0, 1);
-                        //Thread.Sleep(1000);
+                        
                     }
                     
                 }
             }
+        }
+
+        static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
         }
 
         private NetworkStream GSSendReq(byte ID)
@@ -187,8 +201,16 @@ namespace GSTcpInLib
             NetworkStream GSTimeStream = GSTimeClient.GetStream();
             if (ID == 68)
             {
-                byte[] q = new byte[1];
+                Double Time = DateTime.Now.ToOADate() - 0.00001;
+                Console.WriteLine(Time);
+                byte[] TimeBytes = BitConverter.GetBytes(Time);
+                byte[] q = new byte[39];
                 q[0] = ID;
+                for (Ind = 0; Ind < TimeBytes.Length; Ind++)
+                {
+                    q[Ind + 1] = TimeBytes[Ind];
+                }
+
                 GSTimeStream.Write(q, 0, q.Length);
             }
             else
@@ -207,14 +229,9 @@ namespace GSTcpInLib
         private void GSCallTimeDate()
         {
             //Читаем значения
-
             byte[] Value = new byte[8];
             byte[] GSTimeBytes = new byte[3];
-            NetworkStream GSTimeStream = GSSendReq(68);           
-            
-
-
-            //Thread.Sleep(1500);
+            NetworkStream GSTimeStream = GSSendReq(68); 
             while (!GSTimeStream.DataAvailable)
             {
                 Thread.Sleep(10);
@@ -224,7 +241,7 @@ namespace GSTcpInLib
                 GSTimeStream.Read(GSTimeBytes, 0, 3);
                 int dataHeader = GSTimeBytes[2];
                 Console.WriteLine(dataHeader);
-                if ((dataHeader == 68) ) //M or D - пришел пакет с данными
+                if ((dataHeader == 68) | (dataHeader == 77)) //M or D - пришел пакет с данными
                 {
                     System.Int32 packLen = GSTimeBytes[0] + GSTimeBytes[1] * 256;
                     int K = (packLen - 3) / 8;

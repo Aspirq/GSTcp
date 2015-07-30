@@ -22,8 +22,8 @@ namespace GGCalc
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
-            GSTcpConn.GSStart("172.16.10.245");
+
+            GSTcpConn.GSStart(textBox2.Text);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -40,7 +40,7 @@ namespace GGCalc
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Double Val = GSTcpConn.GetParam(0);
+            Double Val = GSTcpConn.GetParam(Convert.ToInt32(textBox1.Text));
             label1.Text = Val.ToString();
             
         }
