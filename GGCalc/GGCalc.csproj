@@ -35,7 +35,8 @@
     <Reference Include="FormulaLib">
       <HintPath>..\FormulaLib\bin\Debug\FormulaLib.dll</HintPath>
     </Reference>
-    <Reference Include="GSTcpInLib">
+    <Reference Include="GSTcpInLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GSTcpInLib\bin\Debug\GSTcpInLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />

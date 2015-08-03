@@ -8,12 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GSTcpInLib;
+using FormulaLib;
 
 namespace GGCalc
 {
+    
     public partial class GSCalcMnFrm : Form
     {
         GSTcpIn GSTcpConn = new GSTcpIn();
+        GSTcpSend GSSender = new GSTcpSend(); 
+        Boolean SendTag = false;
         public List<GSTcpIn.Item> TimeDataRecord;
         public GSCalcMnFrm()
         {
@@ -53,6 +57,37 @@ namespace GGCalc
         private void GSCalcMnFrm_FormClosing(object sender, FormClosingEventArgs e)
         {
             GSTcpConn.GSStop();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            SendTag = true;
+
+        }
+
+        private void SendDo(string IPAddr)
+        {
+
+            if (!GSSender.CheckConnect())
+            {
+                GSSender.Connect(IPAddr);
+            }
+            
+            while (SendTag) 
+            {
+                if (GSSender.CheckConnect())
+                {
+                    Dictionary<String, Double> variables = new Dictionary<string, double>();
+                    Double Val = GSTcpConn.GetParam(Convert.ToInt32(textBox1.Text));
+                    variables.Add("x", Val);
+                    variables.Add("X", Val);
+                    String Formula = textBox3.Text;
+
+                    Double ValForSend = Convert.ToDouble(new PostfixNotationExpression(Formula, variables).Calc().ToString());
+
+
+                }
+            }
         }
     }
 }

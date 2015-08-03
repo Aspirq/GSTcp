@@ -200,9 +200,9 @@ namespace GSTcpInLib
             if (ID == 68)
             {
                 //Если данные
-                Double Time = DateTime.Now.ToOADate() - 0.00001;
+                Double Time = DateTime.Now.ToOADate();
                 Console.WriteLine(Time);
-                byte[] TimeBytes = BitConverter.GetBytes(Time);
+                byte[] TimeBytes = System.Text.Encoding.ASCII.GetBytes(Time.ToString()); // строка времени
                 byte[] q = new byte[TimeBytes.Length+1];
                 q[0] = ID;
                 for (int Ind = 0; Ind < TimeBytes.Length; Ind++)

@@ -10,13 +10,13 @@ using System.Net.NetworkInformation;
 
 namespace GSTcpInLib
 {
-    class GSTcpSend
+    public class GSTcpSend
     {
         TcpClient GSSendClient;
         Int32 SendPort = 2211;
         NetworkStream GSSendStream;
 
-        public Boolean Connect(string GS_IPAddress)
+        public void Connect(string GS_IPAddress)
         {
             try
             {
@@ -26,13 +26,11 @@ namespace GSTcpInLib
                 GSSendClient.SendTimeout = 3000;
                 GSSendClient.ReceiveTimeout = 3000;
                 GSSendClient.Connect(addr, SendPort);
-                GSSendStream = GSSendClient.GetStream();
-                return true;
+                GSSendStream = GSSendClient.GetStream();                
             }
             catch (SocketException e)
             {
-                MessageBox.Show("Ошибка соединения отправки: " + e.Message); // Вывод окна с ошибкой               
-                return false; // Вывожу ошибку и False, если не получилось подключиться.
+                MessageBox.Show("Ошибка соединения отправки: " + e.Message); // Вывод окна с ошибкой   
             }
         }
 
@@ -71,12 +69,22 @@ namespace GSTcpInLib
 
         public Boolean SendValue (string ID, double Val)
         {
-            string MsgForSend = "S" + ID + "=" + Val.ToString("0.0000") + "/r/n";
-            Byte[] DataForSend = System.Text.Encoding.ASCII.GetBytes(MsgForSend);
-            GSSendStream.Write(DataForSend, 0, DataForSend.Length);
-            return true;
+            if (CheckConnect())
+            {
+                string MsgForSend = "S" + ID + "=" + Val.ToString("0.0000") + "/r/n";
+                Byte[] DataForSend = System.Text.Encoding.ASCII.GetBytes(MsgForSend);
+                GSSendStream.Write(DataForSend, 0, DataForSend.Length);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-
+        public void Disconnect()
+        {
+            GSSendClient.Close();
+        }
     }
 }
