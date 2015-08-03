@@ -123,7 +123,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(421, 20);
             this.textBox3.TabIndex = 9;
-            this.textBox3.Text = "Sin(X/10)+X*30";
+            this.textBox3.Text = "If(X<0;0;If(X<1;X*30;If(X<2;(30+(X-1)*50);(80+(X-2)*60))))";
             // 
             // textBox4
             // 
@@ -156,7 +156,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(867, 428);
+            this.ClientSize = new System.Drawing.Size(820, 428);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.textBox4);

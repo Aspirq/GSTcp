@@ -118,6 +118,7 @@ namespace GGCalc
 
         private void button6_Click(object sender, EventArgs e)
         {
+            thread.Abort();
             SendTag = false;
             textBox3.ReadOnly = false;
             GSSender.Disconnect();
