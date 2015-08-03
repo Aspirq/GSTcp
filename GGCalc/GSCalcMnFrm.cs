@@ -64,6 +64,7 @@ namespace GGCalc
         private void button5_Click(object sender, EventArgs e)
         {
             SendTag = true;
+            textBox3.ReadOnly = true;
             thread = new Thread(SendDo);
             thread.IsBackground = false;
             thread.Start(textBox2.Text); 
@@ -117,6 +118,7 @@ namespace GGCalc
         private void button6_Click(object sender, EventArgs e)
         {
             SendTag = false;
+            textBox3.ReadOnly = false;
             GSSender.Disconnect();
         }
     }

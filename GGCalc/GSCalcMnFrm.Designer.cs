@@ -97,7 +97,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 20);
             this.textBox1.TabIndex = 6;
-            this.textBox1.Text = "0";
+            this.textBox1.Text = "731";
             // 
             // textBox2
             // 
@@ -123,7 +123,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(421, 20);
             this.textBox3.TabIndex = 9;
-            this.textBox3.Text = "Sin(X/10)";
+            this.textBox3.Text = "Sin(X/10)+X*30";
             // 
             // textBox4
             // 
