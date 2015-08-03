@@ -9,12 +9,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GSTcpInLib;
 using FormulaLib;
+using System.Threading;
 
 namespace GGCalc
 {
     
     public partial class GSCalcMnFrm : Form
     {
+        static Thread thread;
         GSTcpIn GSTcpConn = new GSTcpIn();
         GSTcpSend GSSender = new GSTcpSend(); 
         Boolean SendTag = false;
@@ -62,15 +64,20 @@ namespace GGCalc
         private void button5_Click(object sender, EventArgs e)
         {
             SendTag = true;
+            thread = new Thread(SendDo);
+            thread.IsBackground = false;
+            thread.Start(textBox2.Text); 
 
         }
 
-        private void SendDo(string IPAddr)
-        {
 
+
+        private void SendDo(object IPAddr)
+        {
+            //SetLableTextDelegate SetLableText = new SetLableTextDelegate(SetLableText);
             if (!GSSender.CheckConnect())
             {
-                GSSender.Connect(IPAddr);
+                GSSender.Connect(IPAddr.ToString());
             }
             
             while (SendTag) 
@@ -79,15 +86,38 @@ namespace GGCalc
                 {
                     Dictionary<String, Double> variables = new Dictionary<string, double>();
                     Double Val = GSTcpConn.GetParam(Convert.ToInt32(textBox1.Text));
+                    
+                    //label1.Text = Val.ToString();
                     variables.Add("x", Val);
                     variables.Add("X", Val);
                     String Formula = textBox3.Text;
-
                     Double ValForSend = Convert.ToDouble(new PostfixNotationExpression(Formula, variables).Calc().ToString());
-
-
+                    //label2.Text = ValForSend.ToString("0.00000");
+                    GSSender.SendValue(textBox4.Text, ValForSend);
+                    this.Invoke(new SetLableTextDelegate(SetLableText), new object[] { Val.ToString(), ValForSend.ToString("0.00000")});
+                    Thread.Sleep(50);
+                }
+                else
+                {
+                    SendTag = false;
+                    GSSender.Disconnect();
                 }
             }
+        }
+
+        delegate void SetLableTextDelegate(string text1, string text2);
+
+        void SetLableText(string text1, string text2)
+        {
+            label1.Text = text1;
+            label2.Text = text2;
+            this.Refresh();
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            SendTag = false;
+            GSSender.Disconnect();
         }
     }
 }

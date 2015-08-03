@@ -36,25 +36,32 @@ namespace GSTcpInLib
 
         public Boolean CheckConnect()
         {
-            if ((GSSendClient != null) && (GSSendClient.Connected))
+            if (GSSendClient != null)
             {
-                IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
-                TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(GSSendClient.Client.LocalEndPoint) && x.RemoteEndPoint.Equals(GSSendClient.Client.RemoteEndPoint)).ToArray();
-                if (tcpConnections != null && tcpConnections.Length > 0)
+                if (GSSendClient.Connected)
                 {
-                    TcpState stateOfConnection = tcpConnections.First().State;
-                    if (stateOfConnection == TcpState.Established)
+                    IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+                    TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(GSSendClient.Client.LocalEndPoint) && x.RemoteEndPoint.Equals(GSSendClient.Client.RemoteEndPoint)).ToArray();
+                    if (tcpConnections != null && tcpConnections.Length > 0)
                     {
-                        // Connection is OK
-                        return true;
+                        TcpState stateOfConnection = tcpConnections.First().State;
+                        if (stateOfConnection == TcpState.Established)
+                        {
+                            // Connection is OK
+                            return true;
+                        }
+                        else
+                        {
+                            // No active tcp Connection to hostName:port
+                            GSSendClient.Close();
+                            return false;
+                        }
+
                     }
                     else
                     {
-                        // No active tcp Connection to hostName:port
-                        GSSendClient.Close();
                         return false;
                     }
-
                 }
                 else
                 {
@@ -71,8 +78,10 @@ namespace GSTcpInLib
         {
             if (CheckConnect())
             {
-                string MsgForSend = "S" + ID + "=" + Val.ToString("0.0000") + "/r/n";
+                string MsgForSend = "S" + ID + "=" + Val.ToString("0.0000") + "\r\n";
+                Console.WriteLine(MsgForSend);
                 Byte[] DataForSend = System.Text.Encoding.ASCII.GetBytes(MsgForSend);
+                Console.WriteLine(DataForSend);
                 GSSendStream.Write(DataForSend, 0, DataForSend.Length);
                 return true;
             }
@@ -84,7 +93,11 @@ namespace GSTcpInLib
 
         public void Disconnect()
         {
-            GSSendClient.Close();
+            if (GSSendClient != null)
+            {
+                GSSendClient.Close();
+                GSSendClient = null;
+            }
         }
     }
 }

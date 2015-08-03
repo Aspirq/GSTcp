@@ -201,7 +201,7 @@ namespace GSTcpInLib
             {
                 //Если данные
                 Double Time = DateTime.Now.ToOADate();
-                Console.WriteLine(Time);
+                //Console.WriteLine(Time);
                 byte[] TimeBytes = System.Text.Encoding.ASCII.GetBytes(Time.ToString()); // строка времени
                 byte[] q = new byte[TimeBytes.Length+1];
                 q[0] = ID;
@@ -239,7 +239,7 @@ namespace GSTcpInLib
                 //Проверка типа полученных данных
                 GSTimeStream.Read(GSTimeBytes, 0, 3);
                 int dataHeader = GSTimeBytes[2];
-                Console.WriteLine(dataHeader);
+               // Console.WriteLine(dataHeader);
                 if ((dataHeader == 68) | (dataHeader == 77)) //M or D - пришел пакет с данными
                 {
                     System.Int32 packLen = GSTimeBytes[0] + GSTimeBytes[1] * 256;
