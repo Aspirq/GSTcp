@@ -153,7 +153,7 @@ namespace FormulaLib
                             }
                             switch (fName)
                             {
-                                case "Если": case "If": 
+                                case "If": 
                                     {
                                         op[i] = new Lexem() { Type = LexemType.Number, Value = (rList[0]==1?rList[1]:rList[2]).ToString() };
                                         break;

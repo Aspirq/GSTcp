@@ -59,6 +59,7 @@ namespace GGCalc
         private void GSCalcMnFrm_FormClosing(object sender, FormClosingEventArgs e)
         {
             GSTcpConn.GSStop();
+            thread.Abort();
         }
 
         private void button5_Click(object sender, EventArgs e)
