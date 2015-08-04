@@ -32,13 +32,13 @@ namespace GSTCPCalc
         Boolean SendTag = false;
         static Thread SendThread;
         static Thread CalcThread;
-
+        List<SettingDataTable> SettingTbl
         
 
         public MainWindow()
         {
             InitializeComponent();
-            List<SettingDataTable> SettingTbl = new List<SettingDataTable>();            
+            SettingTbl = new List<SettingDataTable>();            
             SetTable.ItemsSource = SettingTbl;
             SettingTbl.Add(new SettingDataTable { GID = 711, Formula = "S731*5", IsOn = true, CalcResult = 0 });
             SettingTbl.Add(new SettingDataTable { GID = 712, Formula = "S732*5", IsOn = true, CalcResult = 0 });
@@ -74,6 +74,8 @@ namespace GSTCPCalc
 
         private void StopBtn_Click(object sender, RoutedEventArgs e)
         {
+            SendTag = false;
+            SetTable.IsReadOnly = false;
             GSTcpConn.GSStop();
         }
 
@@ -84,7 +86,14 @@ namespace GSTCPCalc
 
         private void CalcDo()
         {
-
+            while (SendTag)
+            {
+               Thread.Sleep(1000);
+               for (int i=0; i < SettingTbl.Count; i++) 
+               {
+                   SettingTbl[i].CalcResult = Convert.ToDouble(new PostfixNotationExpression(SettingTbl[i].Formula, GSTcpConn.DataDict).Calc().ToString())
+               }
+            }
         }
 
 
