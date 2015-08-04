@@ -18,7 +18,8 @@ namespace GSTcpInLib
         IPAddress addr;        
         Int32 TimePort = 255;
         TcpClient GSTimeClient;
-        Boolean StopTag = true; 
+        Boolean StopTag = true;
+        public Dictionary<String, Double> DataDict;
 
         public class Item
         {
@@ -61,6 +62,7 @@ namespace GSTcpInLib
         // Запуск опроса
         public void  GSStart (string GS_IPAddress)
         {
+            if (thread != null) thread.Abort();
             // Запускаю подключение
             if (GSTimeNewConnect(GS_IPAddress)) 
             {
@@ -75,6 +77,7 @@ namespace GSTcpInLib
         //Остановка опроса
         public void GSStop()
         {
+            if (thread!=null) thread.Abort();
             StopTag = true;
         }
 
@@ -161,6 +164,7 @@ namespace GSTcpInLib
             }
             //Новый лист для хранения данных
             TimeDataRecord = new List<Item>();
+            DataDict = new Dictionary<string,double>();
             if (GSTimeStream.DataAvailable)
             {
                 GSTimeStream.Read(GSTimeBytes, 0, 3);
@@ -176,6 +180,7 @@ namespace GSTcpInLib
                         Item item = new Item();
                         item.ID = paramsID[0] + paramsID[1] * 256;
                         TimeDataRecord.Add(item);
+                        DataDict.Add("S"+item.ID.ToString(), 0);
                     }
                     while (GSTimeStream.DataAvailable)
                     {
@@ -249,6 +254,7 @@ namespace GSTcpInLib
                         //Заносим данные в лист
                         GSTimeStream.Read(Value, 0, 8);                       
                         TimeDataRecord[i].Value = System.BitConverter.ToDouble(Value, 0);
+                        DataDict["S" + TimeDataRecord[i].ID.ToString()] = TimeDataRecord[i].Value;
                     }
                 }
                 while (GSTimeStream.DataAvailable)

@@ -59,7 +59,7 @@ namespace GGCalc
         private void GSCalcMnFrm_FormClosing(object sender, FormClosingEventArgs e)
         {
             GSTcpConn.GSStop();
-            thread.Abort();
+            if (thread != null) thread.Abort();
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -76,7 +76,6 @@ namespace GGCalc
 
         private void SendDo(object IPAddr)
         {
-            //SetLableTextDelegate SetLableText = new SetLableTextDelegate(SetLableText);
             if (!GSSender.CheckConnect())
             {
                 GSSender.Connect(IPAddr.ToString());
@@ -88,13 +87,10 @@ namespace GGCalc
                 {
                     Dictionary<String, Double> variables = new Dictionary<string, double>();
                     Double Val = GSTcpConn.GetParam(Convert.ToInt32(textBox1.Text));
-                    
-                    //label1.Text = Val.ToString();
                     variables.Add("x", Val);
                     variables.Add("X", Val);
                     String Formula = textBox3.Text;
                     Double ValForSend = Convert.ToDouble(new PostfixNotationExpression(Formula, variables).Calc().ToString());
-                    //label2.Text = ValForSend.ToString("0.00000");
                     GSSender.SendValue(textBox4.Text, ValForSend);
                     this.Invoke(new SetLableTextDelegate(SetLableText), new object[] { Val.ToString(), ValForSend.ToString("0.00000")});
                     Thread.Sleep(50);
@@ -122,6 +118,17 @@ namespace GGCalc
             SendTag = false;
             textBox3.ReadOnly = false;
             GSSender.Disconnect();
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            String Formula = textBox5.Text;
+            label3.Text = new PostfixNotationExpression(Formula, GSTcpConn.DataDict).Calc().ToString();
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

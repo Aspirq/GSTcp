@@ -73,7 +73,9 @@ namespace FormulaLib
         
         public PostfixNotationExpression(String formula, Dictionary<String, Double> variables)
         {
+            if (!variables.ContainsKey("PI"))
             variables.Add("PI", Math.PI);
+            if (!variables.ContainsKey("E"))
             variables.Add("E", Math.E);
             Queue<Lexem> queue = new Queue<Lexem>(new Lexer(formula, variables).Lexems);
             Lexem currLextm = null;
