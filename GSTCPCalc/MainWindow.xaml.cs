@@ -29,14 +29,20 @@ namespace GSTCPCalc
     public partial class MainWindow : Window
     {
         GSTcpIn GSTcpConn = new GSTcpIn();
+        Boolean SendTag = false;
+        static Thread SendThread;
+        static Thread CalcThread;
+
         
 
         public MainWindow()
         {
             InitializeComponent();
             List<SettingDataTable> SettingTbl = new List<SettingDataTable>();            
-            TestTable.ItemsSource = SettingTbl;
-            TekZnTbl.ItemsSource = GSTcpConn.DataDict;
+            SetTable.ItemsSource = SettingTbl;
+            SettingTbl.Add(new SettingDataTable { GID = 711, Formula = "S731*5", IsOn = true, CalcResult = 0 });
+            SettingTbl.Add(new SettingDataTable { GID = 712, Formula = "S732*5", IsOn = true, CalcResult = 0 });
+            
         }
 
         public class SettingDataTable
@@ -50,14 +56,35 @@ namespace GSTCPCalc
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            SendTag = true;
+            SetTable.IsReadOnly = true;
             GSTcpConn.GSStart(IpAdrText.Text);
-            TekZnTbl.ItemsSource = GSTcpConn.DataDict;
+            TekZnTblRene();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
            GSTcpConn.GSStop();
-            
+        }
+
+        private void TekZnTblRene()
+        {
+            TekZnTbl.ItemsSource = GSTcpConn.DataDict;
+        }
+
+        private void StopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            GSTcpConn.GSStop();
+        }
+
+        private void SendDo()
+        {
+
+        }
+
+        private void CalcDo()
+        {
+
         }
 
 

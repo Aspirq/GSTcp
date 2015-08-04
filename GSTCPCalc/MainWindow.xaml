@@ -11,10 +11,10 @@
             <RowDefinition Height="39"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <DataGrid Margin="10" x:Name="TestTable" AutoGenerateColumns="False" Grid.Row="1">
+        <DataGrid Margin="10" x:Name="SetTable" AutoGenerateColumns="False" Grid.Row="1">
 
             <DataGrid.Columns>
-                <DataGridTextColumn  Header="GID" Binding="{Binding Gid}" Width="100" />
+                <DataGridTextColumn  Header="GID" Binding="{Binding GID}" Width="100" />
                 <DataGridTextColumn Header="ФОРМУЛА" Binding="{Binding Formula}"  Width="*"/>
                 <DataGridTextColumn Header="Результат" Binding="{Binding CalcResult}" Width="100" IsReadOnly="True"/>
                 <DataGridCheckBoxColumn Binding="{Binding IsOn}"/>
