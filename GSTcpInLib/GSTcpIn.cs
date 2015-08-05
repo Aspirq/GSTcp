@@ -224,7 +224,7 @@ namespace GSTcpInLib
                 GSTimeStream.Write(q, 0, q.Length);
             }
             // возвращаем поток
-            Thread.Sleep(50); 
+            Thread.Sleep(200); 
             return GSTimeStream;
         }
 

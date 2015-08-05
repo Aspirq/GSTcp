@@ -14,18 +14,15 @@
         <DataGrid Margin="10" x:Name="SetTable" AutoGenerateColumns="False" Grid.Row="1">
 
             <DataGrid.Columns>
-                <DataGridTextColumn  Header="GID" Binding="{Binding GID}" Width="100" />
+                <DataGridTextColumn  Header="Описание" Binding="{Binding Discr}" Width="100" />
                 <DataGridTextColumn Header="ФОРМУЛА" Binding="{Binding Formula}"  Width="*"/>
-                <DataGridTextColumn Header="Результат" Binding="{Binding CalcResult}" Width="100" IsReadOnly="True"/>
-                <DataGridCheckBoxColumn Binding="{Binding IsOn}"/>
+                <DataGridTextColumn  Header="GID" Binding="{Binding GID}" Width="100" />
+                <DataGridTextColumn Header="Результат" Binding="{Binding CalcResult}" Width="100" IsReadOnly="True" FontStyle="Italic" FontWeight="Bold"/>
             </DataGrid.Columns>
-
-
         </DataGrid>
         <Button Content="Старт" Name="StartBtn" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" Height="22"/>
         <TextBox HorizontalAlignment="Left" Name="IpAdrText" Height="23" Margin="170,10,0,0" TextWrapping="Wrap" Text="172.16.10.249" VerticalAlignment="Top" Width="120"/>
         <Button Content="Стоп" Name="StopBtn" HorizontalAlignment="Left" Margin="90,10,0,0" VerticalAlignment="Top" Width="75" Height="22" Click="StopBtn_Click"/>
         <DataGrid Grid.Column="1" Margin="10" Grid.Row="1" Name="TekZnTbl" AutoGenerateColumns="True" IsReadOnly="True"/>
-
     </Grid>
 </Window>
