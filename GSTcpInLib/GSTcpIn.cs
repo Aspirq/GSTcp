@@ -12,7 +12,7 @@ using System.Net.NetworkInformation;
 
 namespace GSTcpInLib
 {
-    public class GSTcpIn
+    public class GSTcpIn :IDisposable
     {
         static Thread thread;
         IPAddress addr;        
@@ -20,6 +20,32 @@ namespace GSTcpInLib
         TcpClient GSTimeClient;
         Boolean StopTag = true;
         public Dictionary<String, Double> DataDict;
+
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // dispose managed resources
+                if (thread != null)
+                {
+                    thread.Abort();
+                    thread = null;
+                }
+                if (GSTimeClient != null) GSTimeClient.Close();
+            }
+            // free native resources
+            if (DataDict != null) DataDict = null;
+            if (TimeDataRecord != null) TimeDataRecord = null;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+
 
         public class Item
         {

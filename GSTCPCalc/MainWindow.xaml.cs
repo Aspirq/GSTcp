@@ -116,7 +116,6 @@ namespace GSTCPCalc
         {
             TekZnTbl.ItemsSource = null;
             TekZnTbl.ItemsSource = GSTcpConn.DataDict;
-            TekZnTbl.Items.Refresh();
             SetTable.Items.Refresh();
         }
 
@@ -152,6 +151,12 @@ namespace GSTCPCalc
                }
                this.Dispatcher.Invoke(new TekZnTblRenewDelegate(TekZnTblRenew));
             }
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            AboutBox a = new AboutBox();
+            a.ShowDialog();
         }
 
 
