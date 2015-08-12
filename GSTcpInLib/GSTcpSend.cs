@@ -10,11 +10,27 @@ using System.Net.NetworkInformation;
 
 namespace GSTcpInLib
 {
-    public class GSTcpSend
+    public class GSTcpSend : IDisposable
     {
         TcpClient GSSendClient;
         Int32 SendPort = 2211;
         NetworkStream GSSendStream;
+
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (GSSendStream != null) GSSendStream.Close();
+                if (GSSendClient !=null)  GSSendClient.Close();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         public void Connect(string GS_IPAddress)
         {
