@@ -147,6 +147,7 @@ namespace GSTCPCalc
                for (int i=0; i < SettingTblList.Count; i++) 
                {
                    SettingTblList[i].CalcResult = Convert.ToDouble(new PostfixNotationExpression(SettingTblList[i].Formula, GSTcpConn.DataDict).Calc().ToString());
+                   GSTcpConn.DataDict["S" + SettingTblList[i].GID.ToString()] = SettingTblList[i].CalcResult;
                    Console.WriteLine(SettingTblList[i].CalcResult);
                }
                this.Dispatcher.Invoke(new TekZnTblRenewDelegate(TekZnTblRenew));
