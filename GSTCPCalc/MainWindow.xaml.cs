@@ -129,9 +129,10 @@ namespace GSTCPCalc
 
         private void SendDo()
         {
+            Thread.Sleep(2000);
             while (SendTag)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(500);
                 for (int i = 0; i < SettingTblList.Count; i++)
                 {
                     GSTcpSender.SendValue(SettingTblList[i].GID.ToString(), SettingTblList[i].CalcResult);
@@ -141,9 +142,10 @@ namespace GSTCPCalc
 
         private void CalcDo()
         {
+            Thread.Sleep(2000);
             while (SendTag)
             {
-               Thread.Sleep(1000);
+               Thread.Sleep(500);
                for (int i=0; i < SettingTblList.Count; i++) 
                {
                    SettingTblList[i].CalcResult = Convert.ToDouble(new PostfixNotationExpression(SettingTblList[i].Formula, GSTcpConn.DataDict).Calc().ToString());
