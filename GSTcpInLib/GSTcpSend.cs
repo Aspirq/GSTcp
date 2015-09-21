@@ -95,9 +95,9 @@ namespace GSTcpInLib
             if (CheckConnect())
             {
                 string MsgForSend = "S" + ID + "=" + Val.ToString("0.0000") + "\r\n";
-                Console.WriteLine(MsgForSend);
+                //Console.WriteLine(MsgForSend);
                 Byte[] DataForSend = System.Text.Encoding.ASCII.GetBytes(MsgForSend);
-                Console.WriteLine(DataForSend);
+                //Console.WriteLine(DataForSend);
                 GSSendStream.Write(DataForSend, 0, DataForSend.Length);
                 return true;
             }

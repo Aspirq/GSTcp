@@ -206,6 +206,7 @@ namespace GSTcpInLib
                         Item item = new Item();
                         item.ID = paramsID[0] + paramsID[1] * 256;
                         TimeDataRecord.Add(item);
+                        if (!DataDict.ContainsKey("S" + item.ID.ToString()))
                         DataDict.Add("S"+item.ID.ToString(), 0);
                     }
                     while (GSTimeStream.DataAvailable)

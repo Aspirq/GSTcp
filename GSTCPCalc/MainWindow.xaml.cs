@@ -42,10 +42,35 @@ namespace GSTCPCalc
         string IPPath = Directory.GetCurrentDirectory() + "//IPAdr.xml";
         System.Xml.Serialization.XmlSerializer SetTblSer = new System.Xml.Serialization.XmlSerializer(typeof(List<SettingDataTable>));
         System.Xml.Serialization.XmlSerializer IpTblSer = new System.Xml.Serialization.XmlSerializer(typeof(string));
-        
+        FileStream fs = new FileStream(Directory.GetCurrentDirectory() + "//Error.txt", FileMode.Create);
+        StreamWriter sw;
+
+
+        void MyHandler(object sender, UnhandledExceptionEventArgs args)
+        {
+            Exception e = (Exception)args.ExceptionObject;
+            Console.WriteLine("======================");
+            Console.WriteLine("Time : " + DateTime.Now);
+            Console.WriteLine("MyHandler MSG : " + e.Message);
+            Console.WriteLine("MyHandler HELP : " + e.HelpLink);
+            Console.WriteLine("MyHandler Source : " + e.Source);
+            Console.WriteLine("Runtime terminating: {0}", args.IsTerminating);
+            Console.WriteLine("======================");
+            Console.WriteLine(e);
+            Console.WriteLine("======================");
+            Console.WriteLine("======================");           
+        }
 
         public MainWindow()
         {
+
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
+            
+            sw = new StreamWriter(fs);
+            sw.AutoFlush = true;
+            Console.SetOut(sw);
+            Console.WriteLine("Start et:" + DateTime.Now);
+            //sw.Close();
             InitializeComponent(); 
             SettingTblList = new List<SettingDataTable>();
             if (System.IO.File.Exists(SettingTblPath))
@@ -114,8 +139,8 @@ namespace GSTCPCalc
 
         private void TekZnTblRenew()
         {
-            TekZnTbl.ItemsSource = null;
-            TekZnTbl.ItemsSource = GSTcpConn.DataDict;
+            //TekZnTbl.ItemsSource = null;
+            //TekZnTbl.ItemsSource = GSTcpConn.DataDict;
             SetTable.Items.Refresh();
         }
 

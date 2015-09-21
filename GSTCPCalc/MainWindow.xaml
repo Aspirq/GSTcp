@@ -1,4 +1,4 @@
-﻿<Window x:Class="GSTCPCalc.MainWindow"
+﻿<Window x:Name="MainFRM" x:Class="GSTCPCalc.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Калькулятор ГТИ" Height="453" Width="761" Closing="Window_Closing" Icon="favicon.ico">
