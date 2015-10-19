@@ -37,6 +37,7 @@ namespace GSTCPCalc
         TextBox TextSenIP;
         static Thread CalcThread;
         List<SettingDataTable> SettingTblList;
+        List<KeyValuePair<string, double>> RealDataList;
         XmlDocument SettingDoc = new XmlDocument();
         string SettingTblPath = Directory.GetCurrentDirectory() + "//SettingTbl.xml";
         string IPPath = Directory.GetCurrentDirectory() + "//IPAdr.xml";
@@ -85,6 +86,7 @@ namespace GSTCPCalc
                 IpAdrText.Text = (string)IpTblSer.Deserialize(file2);
             }
             SetTable.ItemsSource = SettingTblList;
+            TekZnTbl.ItemsSource = RealDataList;
     
 
        }
@@ -96,6 +98,12 @@ namespace GSTCPCalc
             public string Formula { get; set; }
             public Boolean IsOn { get; set; }
             public Double CalcResult { get; set; }
+        }
+
+        public class RealData
+        {
+            public String Key { get; set; }
+            public Double Value { get; set; }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -139,8 +147,10 @@ namespace GSTCPCalc
 
         private void TekZnTblRenew()
         {
-            //TekZnTbl.ItemsSource = null;
-            //TekZnTbl.ItemsSource = GSTcpConn.DataDict;
+            //
+            //if (TekZnTbl.ItemsSource == null) 
+            TekZnTbl.ItemsSource = RealDataList;
+            TekZnTbl.Items.Refresh();
             SetTable.Items.Refresh();
         }
 
@@ -173,11 +183,16 @@ namespace GSTCPCalc
                Thread.Sleep(500);
                for (int i=0; i < SettingTblList.Count; i++) 
                {
-                   SettingTblList[i].CalcResult = Convert.ToDouble(new PostfixNotationExpression(SettingTblList[i].Formula, GSTcpConn.DataDict).Calc().ToString());
-                   GSTcpConn.DataDict["S" + SettingTblList[i].GID.ToString()] = SettingTblList[i].CalcResult;
-                   Console.WriteLine(SettingTblList[i].CalcResult);
+                   Double CalcResult = Convert.ToDouble(new PostfixNotationExpression(SettingTblList[i].Formula, GSTcpConn.DataDict).Calc().ToString());
+                   SettingTblList[i].CalcResult = CalcResult;
+                   GSTcpConn.DataDict["S" + SettingTblList[i].GID.ToString()] = CalcResult;
+                   CalcResult = Double.NaN;
+                   //Console.WriteLine(SettingTblList[i].CalcResult);
                }
+               RealDataList = GSTcpConn.DataDict.ToList();
+               
                this.Dispatcher.Invoke(new TekZnTblRenewDelegate(TekZnTblRenew));
+               
             }
         }
 
